@@ -6,4 +6,5 @@ dependencies:
   - python=3.10
   - pandas
   - pytorch
+  - openpyxl
 prefix: /opt/homebrew/Caskroom/miniconda/base/envs/cuvalley2023
