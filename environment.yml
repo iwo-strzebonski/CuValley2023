@@ -1,0 +1,9 @@
+name: cuvalley2023
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pandas
+  - pytorch
+prefix: /opt/homebrew/Caskroom/miniconda/base/envs/cuvalley2023
