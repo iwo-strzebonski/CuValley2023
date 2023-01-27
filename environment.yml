@@ -3,8 +3,9 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.10
-  - pandas
   - pytorch
   - openpyxl
-prefix: /opt/homebrew/Caskroom/miniconda/base/envs/cuvalley2023
+  - python=3.10
+  - pandas
+  - prospector
+prefix: C:\Users\iwos0\.conda\envs\cuvalley2023
