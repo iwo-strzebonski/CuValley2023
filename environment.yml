@@ -3,9 +3,11 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - python=3.10
   - pytorch
   - openpyxl
-  - python=3.10
   - pandas
-  - prospector
-prefix: C:\Users\iwos0\.conda\envs\cuvalley2023
+  - numpy
+  - pip
+  - pip:
+    - prospector
