@@ -52,3 +52,6 @@ for epoch in range(number_of_epochs):
 
     if (epoch + 1) % 10 == 0:
         print(f'epoch: {epoch + 1}, loss = {loss.item():.4f}')
+
+
+torch.save(model.state_dict(), 'data/model.pth')
