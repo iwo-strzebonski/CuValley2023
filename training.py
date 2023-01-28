@@ -20,29 +20,20 @@ class HydroDataset(Dataset):
         return self.n_samples
 
 
-class LogisticRegression(nn.Module):
-    def __init__(self, n_input_features):
-        super(LogisticRegression, self).__init__()
-        self.linear = nn.Linear(n_input_features, 1)
-
-    def forward(self, x):
-        y_pred = torch.sigmoid(self.linear(x))
-        return y_pred
-
-
-dataset = HydroDataset('wine.csv')
+dataset = HydroDataset('data/training_data.csv')
 
 # training parameters
 batch_size = 4
 number_of_epochs = 10000
 learning_rate = 0.001
 n_features = dataset.n_features
+output_size = 1
 
 # model
-model = LogisticRegression(n_features)
+model = nn.Linear(n_features, output_size)
 
 # Loss and optimizer classes for training purposes
-criterion = nn.BCELoss()
+criterion = nn.MSELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
 dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=0)
