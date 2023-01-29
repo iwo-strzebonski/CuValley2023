@@ -85,11 +85,11 @@ def predict_forecast(dataset_file, is_file = True) -> dict:
     with torch.no_grad():
         hydro_forecast = {}
         for feature, date in hydro_data_loader:
-            print(date, feature)
             output = hydro_model(feature)
-            hydro_forecast[date] = output
+            hydro_forecast[date.item()] = [x.item() for x in output]
     return hydro_forecast
 
 
 if __name__ == "__main__":
     training()
+    predict_forecast()
