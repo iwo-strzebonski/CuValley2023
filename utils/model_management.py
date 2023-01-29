@@ -1,13 +1,13 @@
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
-
+from datetime import datetime
 
 class HydroDataset(Dataset):
 
     def __init__(self, hydro_file):
-        xy = np.loadtxt(hydro_file, delimiter=',', dtype=np.float32, skiprows=1)
+        xy = np.loadtxt(hydro_file, delimiter=',', dtype=np.float32, skiprows=1, encoding='utf-8')
         self.x = torch.from_numpy(xy[:, 1:])
         self.y = torch.from_numpy(xy[:, [0]])
         self.n_samples = xy.shape[0]
@@ -20,7 +20,7 @@ class HydroDataset(Dataset):
         return self.n_samples
 
 
-dataset = HydroDataset('/utils/out/data_set.csv')
+dataset = HydroDataset('utils/out/data_set.csv')
 
 # training parameters
 batch_size = 1
@@ -60,10 +60,10 @@ def training():
 
         if (epoch + 1) % 10 == 0:
             print(f'epoch: {epoch + 1}, loss = {loss.item():.4f}')
-        torch.save(model.state_dict(), './out/model.pth')
+        torch.save(model.state_dict(), 'utils/out/model.pth')
 
 
-def predict_forecast(dataset_file) -> dict:
+def predict_forecast(dataset_file, is_file = True) -> dict:
     """
     Predict height of Odra river on daily basis based on provided datetime range
 
@@ -71,14 +71,21 @@ def predict_forecast(dataset_file) -> dict:
     """
     # Upload model and datasets
     hydro_model = nn.Linear(n_features, output_size)
-    hydro_model.load_state_dict(torch.load('./out/model.pth'))
+    hydro_model.load_state_dict(torch.load('utils/out/model.pth'))
+    
+    if not is_file:
+        with open('utils/out/data.csv', 'w', encoding='utf-8') as file:
+            file.write(dataset_file)
+            dataset_file = 'utils/out/data.csv'
+    
     hydro_dataset = HydroDataset(dataset_file)
     hydro_data_loader = DataLoader(dataset=hydro_dataset, batch_size=batch_size, shuffle=False)
 
     # Predict
     with torch.no_grad():
         hydro_forecast = {}
-        for date, feature in hydro_data_loader:
+        for feature, date in hydro_data_loader:
+            print(date, feature)
             output = hydro_model(feature)
             hydro_forecast[date] = output
     return hydro_forecast
