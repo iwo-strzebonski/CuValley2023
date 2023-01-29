@@ -1,8 +1,7 @@
 from fastapi import FastAPI, status, UploadFile, File, HTTPException
 
 
-from utils.model_management import predict_forecast
-from utils.read_files import read_files_prediction
+from utils import model_management, parse_data, read_files
 
 app = FastAPI()
 
@@ -20,6 +19,8 @@ async def get_hydro_forecast(hydro_file: UploadFile = File(...), meteo_file: Upl
     if (hydro_file.content_type and meteo_file.content_type) != acceptable_content_type:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, 'The uploaded file is not in XLSX format')
 
-    data_to_predict = read_files_prediction(hydro_file, meteo_file)
-    forecast = predict_forecast(data_to_predict)
+    filtered_meteo, filtered_hydro = read_files.read_files_prediction(hydro_file, meteo_file)
+    data = parse_data.parse_data(filtered_meteo, filtered_hydro)
+    data_set_to_prediction = data.to_csv(index=False)
+    forecast = model_management.predict_forecast(data_set_to_prediction)
     return forecast

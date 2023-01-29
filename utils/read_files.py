@@ -142,5 +142,84 @@ def read_files() -> Tuple[DataFrame, DataFrame]:
     return filtered_meteo, filtered_hydro
 
 
-def read_files_prediction(hydro_data, meteo_date):
-    pass
+def read_files_prediction(hydro_data, meteo_data):
+    """
+    Refactor passed data to prediction format
+    :param hydro_data:
+    :param meteo_data:
+    :return:
+    """
+
+    # Prepare date
+    meteo_stations_file = 'stations_meteo.txt'
+    hydro_stations_file = 'stations_hydro.txt'
+    with open(f'data/{meteo_stations_file}', 'r', encoding='utf-8') as f:
+        meteo_stations = [line.rstrip('\n') for line in f.readlines()]
+
+    with open(f'data/{hydro_stations_file}', 'r', encoding='utf-8') as f:
+        hydro_stations = [line.rstrip('\n') for line in f.readlines()]
+
+    # Prepare hydro data
+    hydro_data = read_excel(
+        hydro_data,
+        skiprows=3,
+        sheet_name='dane',
+        header=None,
+        names=[
+            'DATE',
+            'WATER_LEVEL_END',
+            'WATER_LEVEL_START'
+        ])
+
+    dates = hydro_data['DATE'].values
+    years, months, days = [], [], []
+
+    for date in dates:
+        date = date.split('-')
+        years.append(date[0])
+        months.append(date[1])
+        days.append(date[2])
+
+    water_levels_start = hydro_data['WATER_LEVEL_START'].values
+    water_levels_end = hydro_data['WATER_LEVEL_END'].values
+
+    data = []
+
+    for i in range(len(water_levels_start)):
+        data.append([hydro_stations[0], years[i], months[i], days[i], water_levels_start[i]])
+
+    for i in range(len(water_levels_end)):
+        data.append([hydro_stations[1], years[i], months[i], days[i], water_levels_end[i]])
+
+    filtered_hydro = DataFrame(data, columns=['STATION_NAME', 'YEAR', 'MONTH', 'DAY', 'WATER_LEVEL'])
+
+    # Prepare meteo data
+    meteo_data = read_excel(meteo_data, sheet_name='dane', header=None)
+
+    stations = [x[:x.index('(') - 1] for x in filter(lambda y: isinstance(y, str), meteo_data.values[0])]
+
+    meteo_data.drop(index=[0, 1], inplace=True)
+    meteo_data.reset_index(drop=True, inplace=True)
+
+    dates = meteo_data[0].values
+    years, months, days = [], [], []
+    index = Index(range(1, len(meteo_data.columns), 2))
+    values = meteo_data[index].values
+
+    for date in dates:
+        date = date.split('-')
+        years.append(date[2])
+        months.append(date[1])
+        days.append(date[0])
+
+    data = []
+
+    for i in range(len(stations)):
+        for ii in range(len(values)):
+            data.append([stations[i], years[ii], months[ii], days[ii], values[ii][i]])
+
+    filtered_meteo = DataFrame(data, columns=['STATION_NAME', 'YEAR', 'MONTH', 'DAY', 'PRECIPITATION'])
+
+    filtered_meteo = filtered_meteo.fillna(0)
+    filtered_hydro = filtered_hydro.fillna(0)
+    return filtered_meteo, filtered_hydro
