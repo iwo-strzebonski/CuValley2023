@@ -14,10 +14,9 @@ def parse_data(meteo: DataFrame, hydro: DataFrame) -> list[Series]:
     meteo_offset = read_csv(f'data/{meteo_offset_file}', header=None, names=['STATION_NAME', 'OFFSET'])
     meteo_dates = meteo[['YEAR', 'MONTH', 'DAY']].apply(get_timestamp, axis=1)
     hydro_dates = hydro[['YEAR', 'MONTH', 'DAY']].apply(get_timestamp, axis=1)
-    hydro_outcome_date = hydro[['YEAR', 'MONTH', 'DAY']].apply(get_str_date, offset=1, axis=1)
     meteo['DATE'] = meteo_dates
     hydro['DATE'] = hydro_dates
-    hydro['STR_DATA'] = hydro_outcome_date
+    hydro['STR_DATA'] = hydro_dates
     meteo_dates = meteo_dates.unique()
     hydro_dates = hydro_dates.unique()
 
