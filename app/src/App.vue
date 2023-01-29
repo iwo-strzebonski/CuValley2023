@@ -1,8 +1,27 @@
 <script lang="ts">
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  TimeScale
+} from 'chart.js'
+import 'chartjs-adapter-moment'
+import { Line } from 'vue-chartjs'
+
 import usePredictionStore from '@/stores/prediction'
 
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement, LineElement, TimeScale)
 export default {
   name: 'KGHMFrontend',
+  components: {
+    LineChart: Line
+  },
   setup() {
     const store = usePredictionStore()
 
@@ -56,11 +75,11 @@ export default {
   <v-app>
     <v-main>
       <h1>KGHM Frontend</h1>
-      <v-card v-if="!store.data.length">
+      <v-card v-if="!Object.keys(store.data).length">
         Waiting for data...
         <v-btn @click="getData">Load data</v-btn>
       </v-card>
-      <!-- <v-sparkline v-else padding="8" width="2" radius="4" :value="store.data" :labels="store.labels" /> -->
+      <line-chart v-else :data="{ datasets: store.data, labels: store.labels }" />
     </v-main>
   </v-app>
 </template>
