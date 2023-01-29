@@ -3,8 +3,8 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 const usePredictionStore = defineStore('prediction', () => {
-  const data = ref<any>([])
-  const labels = ref<string[]>(['1', '2', '3', '4', '5', '6'])
+  const data = ref<any>({})
+  const labels = ref<string[]>([])
 
   const getData = async (meteoFile: File, hydroFile: File) => {
     const axiosClient = axios.create({
@@ -23,9 +23,17 @@ const usePredictionStore = defineStore('prediction', () => {
 
     const response = await axiosClient.post('/forecast', formData)
 
-    console.debug(response.data)
+    console.debug(Object.values(response.data))
 
-    // data.value = response.data
+    data.value = {
+      label: 'Water Level',
+      data: Object.values(response.data),
+      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+      borderColor: 'rgba(255, 99, 132, 1)',
+      borderWidth: 1
+    }
+
+    labels.value = Object.keys(response.data)
   }
 
   return {
